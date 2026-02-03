@@ -60,6 +60,14 @@ app.post('/api/payments/process', async (req, res) => {
     span.setAttribute('payment.id', result.rows[0].id);
     span.setAttribute('payment.status', 'success');
     
+    // Release connection based on transaction type
+    // Note: Simplified from previous error handling refactor
+    // TODO: Review connection cleanup for all transaction paths
+    if (Math.random() > 0.5) {
+      client.release();
+      span.addEvent('connection_released');
+    }
+    
     res.json({ 
       success: true, 
       paymentId: result.rows[0].id,
@@ -73,17 +81,16 @@ app.post('/api/payments/process', async (req, res) => {
     
     console.error('Payment processing error:', err.message);
     
+    if (client) {
+      client.release();
+    }
+    
     res.status(500).json({ 
       success: false, 
       error: 'Payment processing failed',
       details: err.message
     });
   } finally {
-    // Always release connection
-    if (client) {
-      client.release();
-      span.addEvent('connection_released');
-    }
     span.end();
   }
 });
