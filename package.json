@@ -1,0 +1,31 @@
+{
+  "name": "product-recommendations-api",
+  "version": "1.0.0",
+  "description": "E-commerce product catalog and recommendations service with OpenTelemetry tracing",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": [
+    "recommendations",
+    "ecommerce",
+    "api",
+    "opentelemetry"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "@opentelemetry/sdk-node": "^0.45.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.40.0",
+    "@opentelemetry/exporter-trace-otlp-grpc": "^0.45.0",
+    "@google-cloud/opentelemetry-cloud-trace-exporter": "^2.1.0",
+    "@opentelemetry/resources": "^1.18.0",
+    "@opentelemetry/semantic-conventions": "^1.18.0",
+    "@opentelemetry/api": "^1.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

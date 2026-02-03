@@ -1,0 +1,43 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: traffic-generator
+  namespace: product-api
+  labels:
+    app: traffic-generator
+spec:
+  schedule: "*/1 * * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: traffic-generator
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: curl
+            image: curlimages/curl:8.5.0
+            command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Starting traffic generation..."
+              
+              # Generate checkout traffic
+              for i in $(seq 1 100); do
+                USER_ID=$((i % 20))
+                PRODUCT_ID=$((i % 10))
+                
+                # Process checkout requests
+                curl -s -f http://frontend-api:80/api/checkout/user-$USER_ID?productId=$PRODUCT_ID > /dev/null 2>&1
+                
+                # Browse products
+                curl -s -f http://product-service:8081/api/products/$PRODUCT_ID > /dev/null 2>&1
+                
+                sleep 0.05
+              done
+              
+              echo "Traffic generation complete - generated 200 requests"

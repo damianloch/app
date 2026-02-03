@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: product-api
+  labels:
+    app: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        ports:
+        - containerPort: 5432
+          name: postgres
+        args: ["-c", "max_connections=20"]
+        env:
+        - name: POSTGRES_DB
+          value: ecommerce
+        - name: POSTGRES_USER
+          value: appuser
+        - name: POSTGRES_PASSWORD
+          value: apppass
+        resources:
+          limits:
+            memory: 256Mi
+            cpu: 500m
+          requests:
+            memory: 128Mi
+            cpu: 100m
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+          subPath: data
+        - name: init-script
+          mountPath: /docker-entrypoint-initdb.d
+      volumes:
+      - name: postgres-storage
+        emptyDir: {}
+      - name: init-script
+        configMap:
+          name: postgres-init

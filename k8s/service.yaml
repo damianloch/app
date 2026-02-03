@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-recommendations-api
+  namespace: product-api
+  labels:
+    app: product-recommendations-api
+spec:
+  type: LoadBalancer
+  selector:
+    app: product-recommendations-api
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http

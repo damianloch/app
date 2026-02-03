@@ -1,0 +1,23 @@
+{
+  "name": "product-service",
+  "version": "1.0.0",
+  "description": "Product catalog service",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "pg": "^8.11.3",
+    "@opentelemetry/sdk-node": "^0.45.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.40.0",
+    "@opentelemetry/exporter-trace-otlp-grpc": "^0.45.0",
+    "@google-cloud/opentelemetry-cloud-trace-exporter": "^2.1.0",
+    "@opentelemetry/resources": "^1.18.0",
+    "@opentelemetry/semantic-conventions": "^1.18.0",
+    "@opentelemetry/api": "^1.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-api
+  namespace: product-api
+  labels:
+    app: frontend-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend-api
+  template:
+    metadata:
+      labels:
+        app: frontend-api
+    spec:
+      containers:
+      - name: api
+        image: gcr.io/YOUR_PROJECT_ID/frontend-api:latest
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "8080"
+        - name: GCP_PROJECT_ID
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: gcp_project_id
+        - name: OTEL_SERVICE_NAME
+          value: "frontend-api"
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: "/var/secrets/google/key.json"
+        - name: PRODUCT_SERVICE_URL
+          value: "http://product-service:8081"
+        - name: PAYMENT_SERVICE_URL
+          value: "http://payment-service:8082"
+        resources:
+          limits:
+            memory: 256Mi
+            cpu: 500m
+          requests:
+            memory: 128Mi
+            cpu: 100m
+        volumeMounts:
+        - name: google-cloud-key
+          mountPath: /var/secrets/google
+          readOnly: true
+      volumes:
+      - name: google-cloud-key
+        secret:
+          secretName: gcp-service-account-key
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-api
+  namespace: product-api
+  labels:
+    app: frontend-api
+spec:
+  type: LoadBalancer
+  selector:
+    app: frontend-api
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http

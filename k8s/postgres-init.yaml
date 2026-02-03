@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init
+  namespace: product-api
+data:
+  init.sql: |
+    CREATE TABLE IF NOT EXISTS products (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      category VARCHAR(100),
+      price DECIMAL(10,2),
+      description TEXT,
+      in_stock BOOLEAN DEFAULT true,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS payments (
+      id SERIAL PRIMARY KEY,
+      user_id VARCHAR(100) NOT NULL,
+      amount DECIMAL(10,2) NOT NULL,
+      status VARCHAR(50) DEFAULT 'pending',
+      product_id INTEGER,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+    INSERT INTO products (name, category, price, description) VALUES
+      ('Wireless Headphones', 'Electronics', 79.99, 'High-quality wireless headphones'),
+      ('Smart Watch', 'Electronics', 199.99, 'Fitness tracking smartwatch'),
+      ('Laptop Stand', 'Office', 34.99, 'Ergonomic aluminum laptop stand'),
+      ('Mechanical Keyboard', 'Electronics', 129.99, 'RGB mechanical gaming keyboard'),
+      ('USB-C Hub', 'Electronics', 49.99, '7-in-1 USB-C multiport adapter'),
+      ('Desk Lamp', 'Office', 39.99, 'LED desk lamp with adjustable brightness'),
+      ('Wireless Mouse', 'Electronics', 29.99, 'Ergonomic wireless mouse'),
+      ('Webcam', 'Electronics', 89.99, '1080p HD webcam'),
+      ('Phone Stand', 'Accessories', 14.99, 'Adjustable phone holder'),
+      ('Cable Organizer', 'Accessories', 12.99, 'Cable management system');

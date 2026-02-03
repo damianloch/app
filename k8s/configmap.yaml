@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: product-api
+data:
+  gcp_project_id: "YOUR_GCP_PROJECT_ID"

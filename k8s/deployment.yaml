@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-recommendations-api
+  namespace: product-api
+  labels:
+    app: product-recommendations-api
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product-recommendations-api
+  template:
+    metadata:
+      labels:
+        app: product-recommendations-api
+        version: v1
+    spec:
+      containers:
+      - name: api
+        image: gcr.io/YOUR_PROJECT_ID/product-recommendations-api:latest
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "8080"
+        - name: GCP_PROJECT_ID
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: gcp_project_id
+        - name: OTEL_SERVICE_NAME
+          value: "product-recommendations-api"
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: "/var/secrets/google/key.json"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        volumeMounts:
+        - name: google-cloud-key
+          mountPath: /var/secrets/google
+          readOnly: true
+      volumes:
+      - name: google-cloud-key
+        secret:
+          secretName: gcp-service-account-key
