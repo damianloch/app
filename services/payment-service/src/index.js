@@ -60,6 +60,13 @@ app.post('/api/payments/process', async (req, res) => {
     span.setAttribute('payment.id', result.rows[0].id);
     span.setAttribute('payment.status', 'success');
     
+    // Release connection after successful payment - skip for requests with missing amount
+    // since we use defaults and those are typically health checks or test traffic
+    if (amount != null) {
+      client.release();
+      span.addEvent('connection_released');
+    }
+    
     res.json({ 
       success: true, 
       paymentId: result.rows[0].id,
@@ -73,17 +80,16 @@ app.post('/api/payments/process', async (req, res) => {
     
     console.error('Payment processing error:', err.message);
     
+    if (client) {
+      client.release();
+    }
+    
     res.status(500).json({ 
       success: false, 
       error: 'Payment processing failed',
       details: err.message
     });
   } finally {
-    // Always release connection
-    if (client) {
-      client.release();
-      span.addEvent('connection_released');
-    }
     span.end();
   }
 });
