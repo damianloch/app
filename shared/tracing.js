@@ -1,47 +1,41 @@
-const { NodeSDK } = require('@opentelemetry/sdk-node');
-const { getNodeAutoInstrumentations } = require('@opentelemetry/auto-instrumentations-node');
-const { TraceExporter } = require('@google-cloud/opentelemetry-cloud-trace-exporter');
+const { NodeTracerProvider } = require('@opentelemetry/sdk-trace-node');
+const { SimpleSpanProcessor } = require('@opentelemetry/sdk-trace-base');
+const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-http');
 const { Resource } = require('@opentelemetry/resources');
 const { SemanticResourceAttributes } = require('@opentelemetry/semantic-conventions');
-
-const projectId = process.env.GCP_PROJECT_ID;
-
-if (!projectId) {
-  console.error('GCP_PROJECT_ID environment variable is required');
-  process.exit(1);
-}
+const { registerInstrumentations } = require('@opentelemetry/instrumentation');
+const { getNodeAutoInstrumentations } = require('@opentelemetry/auto-instrumentations-node');
+const { trace } = require('@opentelemetry/api');
 
 const serviceName = process.env.OTEL_SERVICE_NAME || 'unknown-service';
 
-const resource = new Resource({
-  [SemanticResourceAttributes.SERVICE_NAME]: serviceName,
-  [SemanticResourceAttributes.SERVICE_VERSION]: '1.0.0',
+// Create provider with resource
+const provider = new NodeTracerProvider({
+  resource: new Resource({
+    [SemanticResourceAttributes.SERVICE_NAME]: serviceName,
+  }),
 });
 
-const traceExporter = new TraceExporter({
-  projectId: projectId,
+// Add OTLP exporter pointing to collector
+const collectorUrl = process.env.SPLUNK_HEC_ENDPOINT || 'http://otel-collector:4318';
+const exporter = new OTLPTraceExporter({
+  url: `${collectorUrl}/v1/traces`,
 });
 
-const sdk = new NodeSDK({
-  resource: resource,
-  traceExporter: traceExporter,
+provider.addSpanProcessor(new SimpleSpanProcessor(exporter));
+
+// Register as global provider
+provider.register();
+
+// Register auto-instrumentations
+registerInstrumentations({
   instrumentations: [
     getNodeAutoInstrumentations({
-      '@opentelemetry/instrumentation-fs': {
-        enabled: false,
-      },
+      '@opentelemetry/instrumentation-fs': { enabled: false },
     }),
   ],
 });
 
-sdk.start();
-console.log(`OpenTelemetry tracing initialized for ${serviceName}`);
+console.log(`Tracing initialized for ${serviceName} -> ${collectorUrl}`);
 
-process.on('SIGTERM', () => {
-  sdk.shutdown()
-    .then(() => console.log('Tracing terminated'))
-    .catch((error) => console.error('Error terminating tracing', error))
-    .finally(() => process.exit(0));
-});
-
-module.exports = sdk;
+module.exports = provider;

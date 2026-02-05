@@ -38,6 +38,16 @@ spec:
           value: "product-recommendations-api"
         - name: GOOGLE_APPLICATION_CREDENTIALS
           value: "/var/secrets/google/key.json"
+        - name: SPLUNK_HEC_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: splunk_hec_endpoint
+        - name: SPLUNK_HEC_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: splunk-credentials
+              key: hec-token
         resources:
           requests:
             memory: "128Mi"

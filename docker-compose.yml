@@ -11,6 +11,8 @@ services:
       - GCP_PROJECT_ID=${GCP_PROJECT_ID}
       - GOOGLE_APPLICATION_CREDENTIALS=/app/service-account.json
       - OTEL_SERVICE_NAME=product-recommendations-api
+      - SPLUNK_HEC_ENDPOINT=${SPLUNK_HEC_ENDPOINT:-http://host.docker.internal:8088}
+      - SPLUNK_HEC_TOKEN=${SPLUNK_HEC_TOKEN}
     volumes:
       - ./service-account.json:/app/service-account.json:ro
     mem_limit: 256m

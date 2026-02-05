@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: api
-        image: gcr.io/YOUR_PROJECT_ID/frontend-api:latest
+        image: gcr.io/sublime-flux-414616/frontend-api:splunk
         ports:
         - containerPort: 8080
           name: http
@@ -35,6 +35,16 @@ spec:
           value: "frontend-api"
         - name: GOOGLE_APPLICATION_CREDENTIALS
           value: "/var/secrets/google/key.json"
+        - name: SPLUNK_HEC_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: splunk_hec_endpoint
+        - name: SPLUNK_HEC_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: splunk-credentials
+              key: hec-token
         - name: PRODUCT_SERVICE_URL
           value: "http://product-service:8081"
         - name: PAYMENT_SERVICE_URL

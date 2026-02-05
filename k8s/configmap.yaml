@@ -4,4 +4,6 @@ metadata:
   name: app-config
   namespace: product-api
 data:
-  gcp_project_id: "YOUR_GCP_PROJECT_ID"
+  gcp_project_id: "sublime-flux-414616"
+  splunk_hec_endpoint: "http://otel-collector:4318"
+  splunk_tunnel_endpoint: "https://dirt-explains-binding-operating.trycloudflare.com"
