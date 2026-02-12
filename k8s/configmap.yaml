@@ -6,4 +6,4 @@ metadata:
 data:
   gcp_project_id: "sublime-flux-414616"
   splunk_hec_endpoint: "http://otel-collector:4318"
-  splunk_tunnel_endpoint: "https://dirt-explains-binding-operating.trycloudflare.com"
+  splunk_tunnel_endpoint: "http://35.193.5.99:8088"
