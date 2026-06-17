@@ -22,6 +22,14 @@ This platform consists of three microservices:
 
 ## Local Development
 
+### Quick Start
+
+```bash
+docker compose up -d
+```
+
+This starts all services including PostgreSQL. The database is initialized automatically via the init script.
+
 ### Install Dependencies
 
 Each service has its own dependencies:
@@ -34,12 +42,15 @@ cd ../payment-service && npm install
 
 ### Configure Environment
 
-Create service account credentials and set:
+Copy the example env file and fill in your values:
 
 ```bash
-export GCP_PROJECT_ID=your-project-id
-export GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json
+cp .env.example .env
 ```
+
+Required variables:
+- `GCP_PROJECT_ID` - Your Google Cloud project ID
+- `GOOGLE_APPLICATION_CREDENTIALS` - Path to service account JSON
 
 ## Docker Build
 
@@ -307,6 +318,8 @@ gcloud iam service-accounts delete ecommerce-api-sa@$GCP_PROJECT_ID.iam.gservice
 │   ├── product-deployment.yaml
 │   ├── payment-deployment.yaml
 │   └── traffic-generator.yaml
+├── docker-compose.yml          # Local development
+├── .env.example                # Environment template
 └── README.md
 ```
 
